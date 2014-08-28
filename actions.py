@@ -15,12 +15,13 @@ def eventdate(target_day, target_ordinal):
 
 	match = 0
 	while True:
-		match += int(f.weekday() == target_day)
-		if d <= f and match == target_ordinal:
-			return f
+		if f.weekday() == target_day:
+			match += 1
+			if d <= f and match == target_ordinal:
+				return f
 		f += timedelta(1)
 		if f.day == 1:
-			match == 0;
+			match = 0;
 
 def action_say( irc, msg ):
 	irc.send('PRIVMSG ' + msg['receiver'] + ' :hello!\n')
