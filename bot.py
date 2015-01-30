@@ -59,42 +59,44 @@ try:
 
 		# join channel after connect
 		if text.find('Message of the Day') != -1:
-			irc.send ( 'JOIN ' + channel + '\n')
-		else:
-			for line in text.replace('\r', '').split('\n'):
+			irc.send('JOIN %s\n' % channel)
+			continue
 
-				# play ping pong
-				if line.find('PING') != -1:
-					irc.send('PONG ' + line.split()[1] + '\n')
+		for line in text.replace('\r', '').split('\n'):
 
-				#reconnect
-				elif line.find('Closing Link') != -1:
-					time.sleep( 5 ) # wait five seconds
-					irc = irc_connect()
+			# play ping pong
+			if line.find('PING') != -1:
+				irc.send('PONG ' + line.split()[1] + '\n')
 
-				# we were to fast. wait a little bit longer
-				elif line.startswith('ERROR') and line.find('throttled') != -1:
-					time.sleep( 90 ) # wait five seconds
-					irc = irc_connect()
+			#reconnect
+			elif line.find('Closing Link') != -1:
+				time.sleep( 5 ) # wait five seconds
+				irc = irc_connect()
 
-				# check for commands
-				try:
-					msg = parse_msg( line )
+			# we were to fast. wait a little bit longer
+			elif line.startswith('ERROR') and line.find('throttled') != -1:
+				time.sleep( 90 ) # wait five seconds
+				irc = irc_connect()
+
+			# check for commands
+			try:
+				msg = parse_msg( line )
+				if msg['valid']:
 					print '--> valid: %s' % msg
-					if msg['valid']:
 
-						if msg['command'] == ':!say':
-							action_say( irc, msg )
+					if msg['command'] == ':!say':
+						action_say( irc, msg )
 
-						elif msg['command'] == ':!help':
-							action_help( irc, msg )
+					elif msg['command'] == ':!help':
+						action_help( irc, msg )
 
-						elif msg['command'] == ':!date':
-							action_date( irc, msg )
-					if line.endswith(' JOIN #CTreffOS'):
-						action_date( irc, {'receiver':'#CTreffOS'})
-				except:
-					pass
+					elif msg['command'] == ':!date':
+						action_date( irc, msg )
+				#if line.endswith(' JOIN #CTreffOS'):
+				#	action_date( irc, {'receiver':'#CTreffOS'})
+			except:
+				pass
+		time.sleep(0.1)
 
 finally:
 	# send quit command
